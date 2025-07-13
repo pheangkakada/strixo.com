@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="admin.css">
+    <style>
+      
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Admin Dashboard</h1>
+    </header>
+
+    <div class="admin-container">
+      <nav class="sidebar">
+        <ul class="sidebar-menu">
+          <li>
+            <a href="#" onclick="showTab('list-product'); return false;">
+              <i class="fas fa-box"></i> Products
+            </a>
+          </li>
+          <li>
+            <a href="#" onclick="showTab('add-product'); return false;">
+              <i class="fas fa-plus-circle"></i> Add Product
+            </a>
+          </li>
+          <li>
+            <a href="#" onclick="showTab('list-category'); return false;">
+              <i class="fas fa-tags"></i> Categories
+            </a>
+          </li>
+          <li>
+            <a href="#" onclick="showTab('add-category'); return false;">
+              <i class="fas fa-plus-square"></i> Add Category
+            </a>
+          </li>
+          <li>
+            <a href="#" onclick="showTab('user-management-tab'); return false;">
+              <i class="fas fa-users"></i> User Management
+            </a>
+          </li>
+          <li>
+            <a href="#" onclick="showTab('list-orders'); return false;">
+              <i class="fas fa-clipboard-list"></i> Orders
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="main-content">
+        <div id="list-product" class="tab-content">
+          <h2>Product List</h2>
+          <div class="product-list-controls">
+            <input
+              type="search"
+              id="productSearchInput"
+              placeholder="Search by ID or Name..."
+              onkeyup="filterProducts()"
+            />
+          </div>
+          <div class="table-container">
+            <h3>All Products</h3>
+            <div class="responsive-table-wrapper"> <!-- Added wrapper -->
+              <table class="data-table" id="productTable">
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price Small</th>
+                    <th>Price Large</th>
+                    <th>Sizes</th>
+                    <th>Colors</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="productTableBody"></tbody>
+              </table>
+            </div> <!-- End wrapper -->
+            <div
+              id="noProductsMessage"
+              class="no-products-message"
+              style="display: none"
+            >
+              No products found.
+            </div>
+          </div>
+        </div>
+
+        <div id="add-product" class="tab-content">
+          <h2 id="addProductTitle">Add New Product</h2>
+          <div class="form-section">
+            <form id="productForm">
+              <input type="hidden" id="productId" />
+              <div class="form-group">
+                <label for="productName">Product Name:</label>
+                <input type="text" id="productName" required />
+              </div>
+              <div class="form-group">
+                <label for="productCategory">Category:</label>
+                <select id="productCategory" required></select>
+              </div>
+              <div class="form-group">
+                <label for="productImage">Image URL:</label>
+                <input type="text" id="productImage" />
+              </div>
+              <div class="form-group">
+                <label for="productDescription">Description:</label>
+                <textarea id="productDescription"></textarea>
+              </div>
+              <div class="form-row"> <!-- New form-row for prices -->
+                <div class="form-group">
+                  <label for="priceSmall">Price (Small/Default):</label>
+                  <input type="number" id="priceSmall" step="0.01" />
+                </div>
+                <div class="form-group">
+                  <label for="priceLarge">Price (Large/Variant):</label>
+                  <input type="number" id="priceLarge" step="0.01" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Sizes (comma-separated):</label>
+                <div
+                  id="selectedSizesDisplay"
+                  class="selected-sizes-display"
+                  onclick="openSizeModal()"
+                >
+                  <span class="select-size-placeholder"
+                    >Click to select sizes...</span
+                  >
+                </div>
+                <input type="hidden" id="productSizes" name="productSizes" />
+              </div>
+              <div class="form-group">
+                <label>Colors:</label>
+                <div id="colorPickersContainer"></div>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  id="addColorPickerBtn"
+                >
+                  Add Color
+                </button>
+              </div>
+              <div class="form-group">
+                <label for="productStock">Stock Quantity:</label>
+                <input type="number" id="productStock" required />
+              </div>
+              <button type="submit" class="btn btn-primary">
+                Save Product
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="cancelProductEdit()"
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div id="list-category" class="tab-content">
+          <h2>Category List</h2>
+          <div class="category-list-controls">
+            <input
+              type="search"
+              id="categorySearchInput"
+              placeholder="Search by ID or Name..."
+              onkeyup="filterCategories()"
+            />
+          </div>
+          <div class="table-container">
+            <h3>All Categories</h3>
+            <div class="responsive-table-wrapper"> <!-- Added wrapper -->
+              <table class="data-table" id="categoryTable">
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="categoryTableBody"></tbody>
+              </table>
+            </div> <!-- End wrapper -->
+            <div
+              id="noCategoriesMessage"
+              class="no-categories-message"
+              style="display: none"
+            >
+              No categories found.
+            </div>
+          </div>
+        </div>
+
+        <div id="add-category" class="tab-content">
+          <h2 id="addCategoryTitle">Add New Category</h2>
+          <div class="form-section">
+            <form id="categoryForm">
+              <input type="hidden" id="categoryId" />
+              <div class="form-group">
+                <label for="categoryName">Category Name:</label>
+                <input type="text" id="categoryName" required />
+              </div>
+              <div class="form-group">
+                <label for="categoryImage">Image URL:</label>
+                <input type="text" id="categoryImage" />
+              </div>
+              <button type="submit" class="btn btn-primary">
+                Save Category
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="cancelCategoryEdit()"
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div id="user-management-tab" class="tab-content">
+          <h2>User Management</h2>
+          <div class="table-container">
+            <h3>All Users</h3>
+            <div class="responsive-table-wrapper"> <!-- Added wrapper -->
+              <table class="data-table" id="userTable">
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Hashed Password</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="userTableBody"></tbody>
+              </table>
+            </div> <!-- End wrapper -->
+            <div
+              id="noUsersMessage"
+              class="no-users-message"
+              style="display: none"
+            >
+              No users found.
+            </div>
+          </div>
+
+          <div
+            id="editUserFormContainer"
+            class="form-section"
+            style="display: none"
+          >
+            <h3>Edit User</h3>
+            <form id="editUserForm">
+              <input type="hidden" id="editUserId" />
+              <div class="form-group">
+                <label for="editUsername">Username:</label>
+                <input type="text" id="editUsername" name="username" required />
+              </div>
+              <div class="form-group">
+                <label for="editUserEmail">Email:</label>
+                <input type="email" id="editUserEmail" name="email" required />
+              </div>
+              <div class="form-group">
+                <label for="editUserPassword">New Password (optional):</label>
+                <input
+                  type="password"
+                  id="editUserPassword"
+                  name="password"
+                  placeholder="Leave blank to keep current password"
+                />
+              </div>
+              <button type="submit" class="btn btn-primary">
+                Save Changes
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="hideEditUserForm()"
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Orders Tab Content -->
+        <div id="list-orders" class="tab-content">
+          <h2>Order List</h2>
+          <div class="order-list-controls">
+            <input
+              type="search"
+              id="orderSearchInput"
+              placeholder="Search by ID, User, or Status..."
+              onkeyup="filterOrders()"
+            />
+          </div>
+          <div class="table-container">
+            <h3>All Orders</h3>
+            <div class="responsive-table-wrapper"> <!-- Added wrapper -->
+              <table class="data-table" id="orderTable">
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>ID</th>
+                    <th>User</th>
+                    <!-- Changed from User ID to User -->
+                    <th>Order Date</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Payment Method</th>
+                    <th>Shipping Address</th>
+                    <th>Phone Number</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="orderTableBody"></tbody>
+              </table>
+            </div> <!-- End wrapper -->
+            <div
+              id="noOrdersMessage"
+              class="no-orders-message"
+              style="display: none"
+            >
+              No orders found.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sizeModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Select Product Sizes</h3>
+          <button class="modal-close-btn" onclick="closeSizeModal()">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="size-options" id="modalSizeOptions"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-btn" onclick="closeSizeModal()">Cancel</button>
+          <button class="save-btn" onclick="applySelectedSizes()">
+            Apply Sizes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Alert/Confirm Modal -->
+    <div id="customModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="customModalTitle"></h3>
+          <button class="modal-close-btn" onclick="closeCustomModal()">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <p id="customModalMessage"></p>
+        </div>
+        <div class="modal-footer" id="customModalFooter">
+          <!-- Buttons will be injected here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderDetailsModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="orderDetailsTitle">Order Details</h3>
+          <button class="modal-close-btn" onclick="closeOrderDetailsModal()">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Order ID:</strong> <span id="modalOrderId"></span></p>
+          <p><strong>User:</strong> <span id="modalOrderUsername"></span></p>
+          <!-- Changed to Username -->
+          <p><strong>Order Date:</strong> <span id="modalOrderDate"></span></p>
+          <p>
+            <strong>Total Amount:</strong>
+            <span id="modalOrderTotalAmount"></span>
+          </p>
+          <p><strong>Status:</strong> <span id="modalOrderStatus"></span></p>
+          <p>
+            <strong>Payment Method:</strong>
+            <span id="modalOrderPaymentMethod"></span>
+          </p>
+          <p>
+            <strong>Shipping Address:</strong>
+            <span id="modalOrderShippingAddress"></span>
+          </p>
+          <p>
+            <strong>Phone Number:</strong>
+            <span id="modalOrderPhoneNumber"></span>
+          </p>
+
+          <h4
+            class="text-xl font-bold text-gray-800 mt-6 mb-4 border-b pb-2 border-gray-200"
+          >
+            Products in this Order
+          </h4>
+          <div class="responsive-table-wrapper"> <!-- Added wrapper here too -->
+            <table class="data-table" id="orderProductsTable">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Product Name</th>
+                  <th>Quantity</th>
+                  <th>Price at Purchase</th>
+                  <!-- Clarified column name -->
+                  <th>Size</th>
+                  <th>Color</th>
+                  <th>Line Total</th>
+                  <!-- Changed to Line Total -->
+                </tr>
+              </thead>
+              <tbody id="orderProductsTableBody">
+                <!-- Order products will be loaded here -->
+              </tbody>
+            </table>
+          </div> <!-- End wrapper -->
+            <div
+              id="noOrderProductsMessage"
+              class="no-products-message"
+              style="display: none"
+            >
+              No products found for this order.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeOrderDetailsModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- From Uiverse.io by Yaya12085 --> 
+    <!-- <div class="contanerFormLogin" id="formAdminLogin">
+        <form class="form" >
+          <p class="form-title">Sign in Admin Account</p>
+            <div class="input-container">
+              <input placeholder="Enter email" type="email" id="email">
+              <span>
+                <svg stroke="currentColor" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+                </svg>
+              </span>
+          </div>
+          <div class="input-container">
+              <input placeholder="Enter password" type="password" id="pass">
+    
+              <span>
+                <svg stroke="currentColor" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+                  <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+                </svg>
+              </span>
+            </div>
+            <button class="submit"  id="AdminLogin">
+            Sign in
+          </button>
+    
+          <p class="signup-link">
+            if Your need to create Account Contact to Developr.Thank You.
+            <a href="#">
+              Contact
+            </a>
+          </p>
+      </form>
+    </div> -->
+
+
+
+    <script>
+      // API Base URL (adjust if your server is on a different port/domain)
+      const API_BASE_URL = "http://localhost:3000";
+
+      // Global state variables
+      let editingProductId = null;
+      let editingCategoryId = null;
+      let allProducts = [];
+      let allCategories = [];
+      let allUsers = [];
+      let allOrders = [];
+
+      const ALL_AVAILABLE_SIZES = [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL",
+        "30",
+        "32",
+        "34",
+        "36",
+        "38",
+        "40",
+        "Small",
+        "Medium",
+        "Large",
+        "One Size",
+      ];
+      let currentlySelectedSizes = [];
+
+      // --- Custom Modal Functions (for alerts and confirms) ---
+      let customModalResolve;
+
+      function showCustomModal(title, message, type = "alert") {
+        const modal = document.getElementById("customModal");
+        document.getElementById("customModalTitle").textContent = title;
+        document.getElementById("customModalMessage").textContent = message;
+        const footer = document.getElementById("customModalFooter");
+        footer.innerHTML = "";
+
+        if (type === "alert") {
+          const okButton = document.createElement("button");
+          okButton.textContent = "OK";
+          okButton.classList.add("btn", "btn-primary");
+          okButton.onclick = () => {
+            closeCustomModal();
+            if (customModalResolve) customModalResolve(true);
+          };
+          footer.appendChild(okButton);
+        } else if (type === "confirm") {
+          const cancelButton = document.createElement("button");
+          cancelButton.textContent = "Cancel";
+          cancelButton.classList.add("btn", "btn-secondary");
+          cancelButton.onclick = () => {
+            closeCustomModal();
+            if (customModalResolve) customModalResolve(false);
+          };
+          footer.appendChild(cancelButton);
+
+          const confirmButton = document.createElement("button");
+          confirmButton.textContent = "Confirm";
+          confirmButton.classList.add("btn", "btn-danger");
+          confirmButton.onclick = () => {
+            closeCustomModal();
+            if (customModalResolve) customModalResolve(true);
+          };
+          footer.appendChild(confirmButton);
+        }
+
+        modal.classList.add("active");
+        // Add event listener to the close button (X icon)
+        modal.querySelector('.modal-close-btn').onclick = () => {
+            closeCustomModal();
+            if (customModalResolve) customModalResolve(false); // Treat X as cancel for confirms
+        };
+
+
+        return new Promise((resolve) => {
+          customModalResolve = resolve;
+        });
+      }
+
+      function closeCustomModal() {
+        const modal = document.getElementById("customModal");
+        modal.classList.remove("active");
+        // Ensure body scrolling is re-enabled if it was disabled by the modal
+        document.body.classList.remove("modal-open");
+      }
+
+      window.alert = (message) => showCustomModal("Alert", message, "alert");
+      window.confirm = (message) =>
+        showCustomModal("Confirm", message, "confirm");
+
+      // --- Utility Functions ---
+
+      function safeJsonParse(data) {
+        try {
+          if (!data) return [];
+          const parsed = JSON.parse(data);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          return typeof data === "string" && data.includes(",")
+            ? data
+                .split(",")
+                .map((x) => x.trim())
+                .filter(Boolean)
+            : [];
+        }
+      }
+
+      // --- Tab Switching Logic ---
+      function showTab(tabId) {
+        document.querySelectorAll(".tab-content").forEach((tab) => {
+          tab.style.display = "none";
+        });
+
+        document.querySelectorAll(".sidebar-menu li a").forEach((link) => {
+          link.classList.remove("active");
+        });
+
+        const selectedTab = document.getElementById(tabId);
+        if (selectedTab) {
+          selectedTab.style.display = "block";
+        }
+
+        const clickedLink = document.querySelector(
+          `.sidebar-menu li a[onclick*="${tabId}"]`
+        );
+        if (clickedLink) {
+          clickedLink.classList.add("active");
+        }
+
+        if (tabId === "list-product") {
+          fetchProducts();
+        } else if (tabId === "add-product") {
+          const addProductTitle = document.getElementById("addProductTitle");
+          if (editingProductId === null) {
+            document.getElementById("productForm").reset();
+            document.getElementById("productId").value = "";
+            document
+              .getElementById("productForm")
+              .querySelector('button[type="submit"]').textContent =
+              "Save Product";
+            document
+              .getElementById("productForm")
+              .querySelector('button[type="submit"]')
+              .classList.remove("btn-success");
+            document
+              .getElementById("productForm")
+              .querySelector('button[type="submit"]')
+              .classList.add("btn-primary");
+            clearColorPickers();
+            addColorPicker();
+            currentlySelectedSizes = [];
+            updateSelectedSizesDisplay();
+            if (addProductTitle) {
+              addProductTitle.textContent = "Add New Product";
+            }
+          }
+          populateCategorySelect(allCategories);
+        } else if (tabId === "list-category") {
+          fetchCategories();
+        } else if (tabId === "add-category") {
+          const addCategoryTitle = document.getElementById("addCategoryTitle");
+          if (editingCategoryId === null) {
+            document.getElementById("categoryForm").reset();
+            document.getElementById("categoryId").value = "";
+            document
+              .getElementById("categoryForm")
+              .querySelector('button[type="submit"]').textContent =
+              "Save Category";
+            document
+              .getElementById("categoryForm")
+              .querySelector('button[type="submit"]')
+              .classList.remove("btn-success");
+            document
+              .getElementById("categoryForm")
+              .querySelector('button[type="submit"]')
+              .classList.add("btn-primary");
+            if (addCategoryTitle) {
+              addCategoryTitle.textContent = "Add New Category";
+            }
+          }
+        } else if (tabId === "user-management-tab") {
+          fetchUsers();
+          hideEditUserForm();
+        } else if (tabId === "list-orders") {
+          fetchOrders();
+        }
+      }
+
+      // --- Product Management ---
+      async function fetchProducts() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/products`);
+          if (!response.ok) {
+            let errorMessage = `HTTP error! Status: ${response.status} ${response.statusText}`;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              console.warn(
+                "Failed to parse error response as JSON for products:",
+                e
+              );
+            }
+            throw new Error(errorMessage);
+          }
+          const data = await response.json();
+          allProducts = data;
+          renderProducts(allProducts);
+          filterProducts();
+        } catch (err) {
+          document.getElementById(
+            "productTableBody"
+          ).innerHTML = `<tr><td colspan="11" style="color:red; text-align:center;">Failed to load products: ${err.message}</td></tr>`;
+          document.getElementById("noProductsMessage").style.display = "none";
+          console.error("Fetch products error:", err);
+        }
+      }
+
+      function renderProducts(productsToDisplay) {
+        const productTableBody = document.getElementById("productTableBody");
+        productTableBody.innerHTML = "";
+
+        if (productsToDisplay.length === 0) {
+          document.getElementById("noProductsMessage").style.display = "block";
+        } else {
+          document.getElementById("noProductsMessage").style.display = "none";
+          productsToDisplay.forEach((p, index) => {
+            const sizes = Array.isArray(p.sizes) ? p.sizes : [];
+            const colors = Array.isArray(p.colors) ? p.colors : [];
+
+            // Render color boxes for product list table
+            const colorBoxes = colors
+              .map(
+                (color) =>
+                  `<div class="color-box" style="background:${color}; width: 20px; height: 20px; border-radius: 50%; display: inline-block; margin-right: 5px; border: 1px solid #eee;"></div>`
+              )
+              .join("");
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${p.id}</td>
+            <td><img src="${
+              p.image ||
+              "https://placehold.co/60x60/cccccc/333333?text=No+Image"
+            }" alt="${
+              p.name
+            }" onerror="this.onerror=null;this.src='https://placehold.co/60x60/cccccc/333333?text=No+Image';"></td>
+            <td>${p.name}</td>
+            <td>${p.category}</td>
+            <td>$${(parseFloat(p.priceSmall) || 0).toFixed(2)}</td>
+            <td>$${(parseFloat(p.priceLarge) || 0).toFixed(2)}</td>
+            <td>${sizes.join(", ")}</td>
+            <td>${colorBoxes}</td>
+            <td>${p.stock || 0}</td>
+            <td class="action-buttons">
+              <button class="btn edit-btn" onclick="editProduct(${
+                p.id
+              })">Edit</button>
+              <button class="btn delete-btn" onclick="deleteProduct(${
+                p.id
+              })">Delete</button>
+            </td>
+          `;
+            productTableBody.appendChild(row);
+          });
+        }
+      }
+
+      function filterProducts() {
+        const searchTerm = document
+          .getElementById("productSearchInput")
+          .value.toLowerCase()
+          .trim();
+        let filtered = allProducts;
+
+        if (searchTerm) {
+          filtered = allProducts.filter(
+            (p) =>
+              (p.id && p.id.toString().includes(searchTerm)) ||
+              (p.name && p.name.toLowerCase().includes(searchTerm))
+          );
+        }
+        renderProducts(filtered);
+      }
+
+      document
+        .getElementById("productForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const productId = document.getElementById("productId").value;
+          const productName = document
+            .getElementById("productName")
+            .value.trim();
+          const productCategory =
+            document.getElementById("productCategory").value;
+          const productImage = document
+            .getElementById("productImage")
+            .value.trim();
+          const productDescription = document
+            .getElementById("productDescription")
+            .value.trim();
+          const priceSmall =
+            parseFloat(document.getElementById("priceSmall").value) || null;
+          const priceLarge =
+            parseFloat(document.getElementById("priceLarge").value) || null;
+          const productStock =
+            parseInt(document.getElementById("productStock").value, 10) || 0;
+
+          const productData = {
+            name: productName,
+            category: productCategory,
+            image: productImage,
+            description: productDescription,
+            priceSmall: priceSmall,
+            priceLarge: priceLarge,
+            stock: productStock,
+            sizes: currentlySelectedSizes,
+            colors: Array.from(
+              document.querySelectorAll(
+                '#colorPickersContainer .color-picker-group input[type="text"]'
+              )
+            )
+              .map((input) => input.value.trim())
+              .filter(Boolean),
+          };
+
+          const method = productId ? "PUT" : "POST";
+          const url = productId
+            ? `${API_BASE_URL}/products/${productId}`
+            : `${API_BASE_URL}/products`;
+
+          try {
+            const response = await fetch(url, {
+              method,
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(productData),
+            });
+
+            if (!response.ok) {
+              let errorMessage = `HTTP error! Status: ${response.status} ${response.statusText}`;
+              try {
+                const errorData = await response.json();
+                errorMessage = errorData.error || errorMessage;
+              } catch (e) {
+                console.warn(
+                  "Failed to parse error response as JSON for product save:",
+                  e
+                );
+              }
+              throw new Error(errorMessage);
+            }
+
+            const result = await response.json();
+            alert(result.message);
+            resetProductForm();
+            await fetchProducts();
+            showTab("list-product");
+          } catch (err) {
+            alert("Failed to save product: " + err.message);
+            console.error("Save product error:", err);
+          }
+        });
+
+      function resetProductForm() {
+        editingProductId = null;
+        document.getElementById("productForm").reset();
+        document
+          .getElementById("productForm")
+          .querySelector('button[type="submit"]').textContent = "Save Product";
+        document
+          .getElementById("productForm")
+          .querySelector('button[type="submit"]')
+          .classList.remove("btn-success");
+        document
+          .getElementById("productForm")
+          .querySelector('button[type="submit"]')
+          .classList.add("btn-primary");
+        document.getElementById("productId").value = "";
+        document.getElementById("productStock").value = "";
+        clearColorPickers();
+        addColorPicker();
+        currentlySelectedSizes = [];
+        updateSelectedSizesDisplay();
+        const addProductTitle = document.getElementById("addProductTitle");
+        if (addProductTitle) {
+          addProductTitle.textContent = "Add New Product";
+        }
+      }
+
+      function cancelProductEdit() {
+        resetProductForm();
+        showTab("list-product");
+      }
+
+      async function editProduct(id) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/products/${id}`);
+          if (!response.ok) {
+            let errorMessage = `HTTP error! Status: ${response.status} ${response.statusText}`;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              console.warn(
+                "Failed to parse error response as JSON for edit product:",
+                e
+              );
+            }
+            throw new Error(errorMessage);
+          }
+          const p = await response.json();
+          console.log("Fetched product data for editing:", p);
+
+          editingProductId = id;
+
+          populateCategorySelect(allCategories);
+
+          document.getElementById("productId").value = p.id;
+          document.getElementById("productName").value = p.name || "";
+          document.getElementById("productCategory").value = p.category || "";
+          document.getElementById("productImage").value = p.image || "";
+          document.getElementById("productDescription").value =
+            p.description || "";
+          document.getElementById("priceSmall").value = p.priceSmall || "";
+          document.getElementById("priceLarge").value = p.priceLarge || "";
+          document.getElementById("productStock").value = p.stock || 0;
+
+          currentlySelectedSizes = Array.isArray(p.sizes) ? p.sizes : [];
+          updateSelectedSizesDisplay();
+
+          const colors = Array.isArray(p.colors) ? p.colors : [];
+          clearColorPickers();
+          if (colors.length > 0) {
+            colors.forEach((color) => addColorPicker(color));
+          } else {
+            addColorPicker();
+          }
+
+          document
+            .getElementById("productForm")
+            .querySelector('button[type="submit"]').textContent =
+            "Update Product";
+          document
+            .getElementById("productForm")
+            .querySelector('button[type="submit"]')
+            .classList.remove("btn-primary");
+          document
+            .getElementById("productForm")
+            .querySelector('button[type="submit"]')
+            .classList.add("btn-success");
+
+          const addProductTitle = document.getElementById("addProductTitle");
+          if (addProductTitle) {
+            addProductTitle.textContent = "Edit Product";
+          }
+
+          showTab("add-product");
+        } catch (err) {
+          alert("Failed to fetch product for edit: " + err.message);
+          console.error("Edit product error:", err);
+        }
+      }
+
+      async function deleteProduct(id) {
+        const confirmed = await confirm(
+          "Are you sure you want to delete this product?"
+        );
+        if (!confirmed) return;
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+            method: "DELETE",
+          });
+
+          if (!response.ok) {
+            let errorMessage = `HTTP error! Status: ${response.status} ${response.statusText}`;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              console.warn(
+                "Failed to parse error response as JSON for delete product:",
+                e
+              );
+            }
+            throw new Error(errorMessage);
+          }
+
+          const result = await response.json();
+          alert(result.message);
+          await fetchProducts();
+        } catch (err) {
+          alert("Failed to delete product: " + err.message);
+          console.error("Delete product error:", err);
+        }
+      }
+
+      // --- Modal Functions for Size Selection ---
+      function openSizeModal() {
+        populateSizeOptionsInModal();
+        document.getElementById("sizeModal").classList.add("active");
+      }
+
+      function closeSizeModal() {
+        document.getElementById("sizeModal").classList.remove("active");
+      }
+
+      function populateSizeOptionsInModal() {
+        const modalSizeOptions = document.getElementById("modalSizeOptions");
+        modalSizeOptions.innerHTML = "";
+
+        ALL_AVAILABLE_SIZES.forEach((size) => {
+          const sizeOptionDiv = document.createElement("div");
+          sizeOptionDiv.classList.add("size-option");
+          sizeOptionDiv.textContent = size;
+          sizeOptionDiv.dataset.size = size;
+
+          if (currentlySelectedSizes.includes(size)) {
+            sizeOptionDiv.classList.add("selected");
+          }
+
+          sizeOptionDiv.onclick = function () {
+            this.classList.toggle("selected");
+          };
+          modalSizeOptions.appendChild(sizeOptionDiv);
+        });
+      }
+
+      function applySelectedSizes() {
+        const modalSizeOptions = document.getElementById("modalSizeOptions");
+        const selectedOptions = modalSizeOptions.querySelectorAll(
+          ".size-option.selected"
+        );
+        currentlySelectedSizes = Array.from(selectedOptions).map(
+          (option) => option.dataset.size
+        );
+        updateSelectedSizesDisplay();
+        closeSizeModal();
+      }
+
+      function updateSelectedSizesDisplay() {
+        const selectedSizesDisplay = document.getElementById(
+          "selectedSizesDisplay"
+        );
+        const productSizesInput = document.getElementById("productSizes");
+        selectedSizesDisplay.innerHTML = "";
+
+        if (currentlySelectedSizes.length === 0) {
+          selectedSizesDisplay.innerHTML =
+            '<span class="select-size-placeholder">Click to select sizes...</span>';
+        } else {
+          currentlySelectedSizes.forEach((size) => {
+            const sizeTag = document.createElement("span");
+            sizeTag.classList.add("size-tag");
+            sizeTag.innerHTML = `${size} <button type="button" class="remove-size" data-size="${size}">&times;</button>`;
+            selectedSizesDisplay.appendChild(sizeTag);
+
+            sizeTag.querySelector(".remove-size").onclick = function (event) {
+              event.stopPropagation();
+              const sizeToRemove = this.dataset.size;
+              currentlySelectedSizes = currentlySelectedSizes.filter(
+                (s) => s !== sizeToRemove
+              );
+              updateSelectedSizesDisplay();
+            };
+          });
+        }
+        productSizesInput.value = JSON.stringify(currentlySelectedSizes);
+      }
+
+      // --- Color Picker Management (for Product Form) ---
+      const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+
+      function addColorPicker(initialColor = "#000000") {
+        const container = document.getElementById("colorPickersContainer");
+        const div = document.createElement("div");
+        div.classList.add("color-picker-group");
+
+        const validInitialColor = hexColorRegex.test(initialColor)
+          ? initialColor
+          : "#000000";
+
+        const colorInput = document.createElement("input");
+        colorInput.type = "color";
+        colorInput.value = validInitialColor;
+
+        const textInput = document.createElement("input");
+        textInput.type = "text";
+        textInput.placeholder = "Color Name (e.g., Red or #RRGGBB)";
+        textInput.value = validInitialColor;
+
+        colorInput.addEventListener("input", () => {
+          textInput.value = colorInput.value;
+        });
+        textInput.addEventListener("input", () => {
+          if (hexColorRegex.test(textInput.value)) {
+            colorInput.value = textInput.value;
+          }
+        });
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.textContent = "Remove";
+        removeButton.classList.add("btn", "btn-danger");
+        removeButton.onclick = () => div.remove();
+
+        div.appendChild(colorInput);
+        div.appendChild(textInput);
+        div.appendChild(removeButton);
+        container.appendChild(div);
+      }
+
+      function clearColorPickers() {
+        document.getElementById("colorPickersContainer").innerHTML = "";
+      }
+
+      document
+        .getElementById("addColorPickerBtn")
+        .addEventListener("click", () => {
+          addColorPicker();
+        });
+
+      // --- Category Management Functions ---
+      async function fetchCategories() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/categories`);
+          if (!response.ok) {
+            let errorMessage = `HTTP error! Status: ${response.status} ${response.statusText}`;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              console.warn(
+                "Failed to parse error response as JSON for categories:",
+                e
+              );
+            }
+            throw new Error(errorMessage);
+          }
+          const data = await response.json();
+          allCategories = data;
+          populateCategorySelect(data);
+          renderCategories(allCategories);
+          filterCategories();
+        } catch (err) {
+          document.getElementById(
+            "categoryTableBody"
+          ).innerHTML = `<tr><td colspan="5" style="color:red; text-align:center;">Failed to load categories: ${err.message}</td></tr>`;
+          document.getElementById("noCategoriesMessage").style.display = "none";
+          console.error("Fetch categories error:", err);
+        }
+      }
+
+      function populateCategorySelect(categories) {
+        const productCategorySelect =
+          document.getElementById("productCategory");
+        const currentSelectedValue = productCategorySelect.value;
+
+        productCategorySelect.innerHTML =
+          '<option value="">Select category</option>';
+        categories.forEach((category) => {
+          const option = document.createElement("option");
+          option.value = category.name;
+          option.textContent = category.name;
+          productCategorySelect.appendChild(option);
+        });
+
+        if (
+          currentSelectedValue &&
+          categories.some((cat) => cat.name === currentSelectedValue)
+        ) {
+          productCategorySelect.value = currentSelectedValue;
+        }
+      }
+
+      function renderCategories(categoriesToDisplay) {
+        const categoryTableBody = document.getElementById("categoryTableBody");
+        categoryTableBody.innerHTML = "";
+        if (categoriesToDisplay.length === 0) {
+          document.getElementById("noCategoriesMessage").style.display =
+            "block";
+        } else {
+          document.getElementById("noCategoriesMessage").style.display = "none";
+          categoriesToDisplay.forEach((c, index) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${c.id}</td>
+                    <td><img src="${
+                      c.image ||
+                      "https://placehold.co/60x60/cccccc/333333?text=No+Image"
+                    }" alt="${
+              c.name
+            }" onerror="this.onerror=null;this.src='https://placehold.co/60x60/cccccc/333333?text=No+Image';"></td>
+                    <td>${c.name}</td>
+                    <td class="action-buttons">
+                        <button class="btn edit-btn" onclick="editCategory(${
+                          c.id
+                        })">Edit</button>
+                        <button class="btn delete-btn" onclick="deleteCategory(${
+                          c.id
+                        })">Delete</button>
+                    </td>
+                `;
+            categoryTableBody.appendChild(row);
+          });
+        }
+      }
+
+      function filterCategories() {
+        const searchTerm = document
+          .getElementById("categorySearchInput")
+          .value.toLowerCase()
+          .trim();
+        let filtered = allCategories;
+
+        if (searchTerm) {
+          filtered = allCategories.filter(
+            (c) =>
+              (c.id && c.id.toString().includes(searchTerm)) ||
+              (c.name && c.name.toLowerCase().includes(searchTerm))
+          );
+        }
+        renderCategories(filtered);
+      }
+
+      document
+        .getElementById("categoryForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const categoryId = document.getElementById("categoryId").value;
+          const categoryName = document
+            .getElementById("categoryName")
+            .value.trim();
+          const categoryImage =
+            document.getElementById("categoryImage").value.trim() || null;
+
+          const categoryData = {
+            name: categoryName,
+            image: categoryImage,
+          };
+
+          const method = categoryId ? "PUT" : "POST";
+          const url = categoryId
+            ? `${API_BASE_URL}/categories/${categoryId}`
+            : `${API_BASE_URL}/categories`;
+
+          try {
+            const response = await fetch(url, {
+              method,
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(categoryData),
+            });
+
+            if (!response.ok) {
+              let errorMessage = `HTTP error! Status: ${response.status} ${response.statusText}`;
+              try {
+                const errorData = await response.json();
+                errorMessage = errorData.error || errorMessage;
+              } catch (e) {
+                console.warn(
+                  "Failed to parse error response as JSON for category save:",
+                  e
+                );
+              }
+              throw new Error(errorMessage);
+            }
+
+            const result = await response.json();
+            alert(result.message);
+            resetCategoryForm();
+            await fetchCategories();
+            await fetchProducts();
+            showTab("list-category");
+          } catch (err) {
+            alert("Failed to save category: " + err.message);
+            console.error("Save category error:", err);
+          }
+        });
+
+      function resetCategoryForm() {
+        editingCategoryId = null;
+        document.getElementById("categoryForm").reset();
+        document
+          .getElementById("categoryForm")
+          .querySelector('button[type="submit"]').textContent = "Save Category";
+        document
+          .getElementById("categoryForm")
+          .querySelector('button[type="submit"]')
+          .classList.remove("btn-success");
+        document
+          .getElementById("categoryForm")
+          .querySelector('button[type="submit"]')
+          .classList.add("btn-primary");
+        document.getElementById("categoryId").value = "";
+        const addCategoryTitle = document.getElementById("addCategoryTitle");
+        if (addCategoryTitle) {
+          addCategoryTitle.textContent = "Add New Category";
+        }
+      }
+
+      function cancelCategoryEdit() {
+        resetCategoryForm();
+        showTab("list-category");
+      }
+
+      async function editCategory(id) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/categories/${id}`);
+          if (!response.ok) {
+            let errorMessage = `HTTP error! Status: ${response.status} ${response.statusText}`;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              console.warn(
+                "Failed to parse error response as JSON for edit category:",
+                e
+              );
+            }
+            throw new Error(errorMessage);
+          }
+          const c = await response.json();
+          console.log("Fetched category data for editing:", c);
+
+          editingCategoryId = id;
+
+          document.getElementById("categoryId").value = c.id;
+          document.getElementById("categoryName").value = c.name || "";
+          document.getElementById("categoryImage").value = c.image || "";
+
+          document
+            .getElementById("categoryForm")
+            .querySelector('button[type="submit"]').textContent =
+            "Update Category";
+          document
+            .getElementById("categoryForm")
+            .querySelector('button[type="submit"]')
+            .classList.remove("btn-primary");
+          document
+            .getElementById("categoryForm")
+            .querySelector('button[type="submit"]')
+            .classList.add("btn-success");
+
+          const addCategoryTitle = document.getElementById("addCategoryTitle");
+          if (addCategoryTitle) {
+            addCategoryTitle.textContent = "Edit Category";
+          }
+
+          showTab("add-category");
+        } catch (err) {
+          alert("Failed to fetch category for edit: " + err.message);
+          console.error("Edit category error:", err);
+        }
+      }
+
+      async function deleteCategory(id) {
+        const confirmed = await confirm(
+          "Are you sure you want to delete this category? This will also remove products associated with it."
+        );
+        if (!confirmed) return;
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
+            method: "DELETE",
+          });
+
+          if (!response.ok) {
+            let errorMessage = `HTTP error! Status: ${response.status} ${response.statusText}`;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              console.warn(
+                "Failed to parse error response as JSON for delete category:",
+                e
+              );
+            }
+            throw new Error(errorMessage);
+          }
+
+          const result = await response.json();
+          alert(result.message);
+          await fetchCategories();
+          await fetchProducts();
+        } catch (err) {
+          alert("Failed to delete category: " + err.message);
+          console.error("Delete category error:", err);
+        }
+      }
+
+      // --- User Management Functions ---
+      async function fetchUsers() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/users/all`);
+          if (!response.ok) {
+            let errorMessage = `HTTP error! Status: ${response.status} ${response.statusText}`;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              console.warn(
+                "Failed to parse error response as JSON for users:",
+                e
+              );
+            }
+            throw new Error(errorMessage);
+          }
+          const users = await response.json();
+          allUsers = users;
+          renderUsers(allUsers);
+        } catch (error) {
+          console.error("Error fetching users:", error);
+          alert("Failed to fetch users: " + error.message);
+          document.getElementById("userTableBody").innerHTML =
+            '<tr><td colspan="6" style="color:red; text-align:center;">Failed to load users: ' +
+            error.message +
+            "</td></tr>";
+          document.getElementById("noUsersMessage").style.display = "none";
+        }
+      }
+
+      function renderUsers(usersToDisplay) {
+        const userTableBody = document.getElementById("userTableBody");
+        userTableBody.innerHTML = "";
+
+        if (usersToDisplay.length === 0) {
+          document.getElementById("noUsersMessage").style.display = "block";
+        } else {
+          document.getElementById("noUsersMessage").style.display = "none";
+          usersToDisplay.forEach((user, index) => {
+            const row = userTableBody.insertRow();
+            row.insertCell(0).textContent = index + 1;
+            row.insertCell(1).textContent = user.id;
+            row.insertCell(2).textContent = user.username;
+            row.insertCell(3).textContent = user.email;
+            row.insertCell(4).textContent = "********";
+
+            const actionsCell = row.insertCell(5);
+            actionsCell.classList.add("action-buttons");
+
+            const editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+            editButton.classList.add("btn", "edit-btn");
+            editButton.onclick = () => showEditUserForm(user);
+            actionsCell.appendChild(editButton);
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.classList.add("btn", "delete-btn");
+            deleteButton.onclick = () => deleteUser(user.id, user.username);
+            actionsCell.appendChild(deleteButton);
+          });
+        }
+      }
+
+      function showEditUserForm(user) {
+        document.getElementById("editUserFormContainer").style.display =
+          "block";
+        document.getElementById("editUserId").value = user.id;
+        document.getElementById("editUsername").value = user.username;
+        document.getElementById("editUserEmail").value = user.email;
+        document.getElementById("editUserPassword").value = "";
+        document
+          .getElementById("editUserFormContainer")
+          .scrollIntoView({ behavior: "smooth" });
+      }
+
+      function hideEditUserForm() {
+        document.getElementById("editUserFormContainer").style.display = "none";
+        document.getElementById("editUserForm").reset();
+      }
+
+      document
+        .getElementById("editUserForm")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          const userId = document.getElementById("editUserId").value;
+          const username = document.getElementById("editUsername").value;
+          const email = document.getElementById("editUserEmail").value;
+          const password = document.getElementById("editUserPassword").value;
+
+          const updateData = { username, email };
+          if (password) {
+            updateData.password = password;
+          }
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(updateData),
+            });
+
+            if (!response.ok) {
+              let errorMessage = `HTTP error! Status: ${response.status} ${response.statusText}`;
+              try {
+                const errorData = await response.json();
+                errorMessage = errorData.error || errorMessage;
+              } catch (e) {
+                console.warn(
+                  "Failed to parse error response as JSON for user update:",
+                  e
+                );
+              }
+              throw new Error(errorMessage);
+            }
+
+            const result = await response.json();
+            alert(result.message);
+            hideEditUserForm();
+            fetchUsers();
+          } catch (error) {
+            console.error("Error updating user:", error);
+            alert("Failed to update user: " + error.message);
+          }
+        });
+
+      async function deleteUser(id, username) {
+        const confirmed = await confirm(
+          `Are you sure you want to delete user: ${username} (ID: ${id})?`
+        );
+        if (!confirmed) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+            method: "DELETE",
+          });
+
+          if (!response.ok) {
+            let errorMessage = `HTTP error! Status: ${response.status} ${response.statusText}`;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              console.warn(
+                "Failed to parse error response as JSON for delete user:",
+                e
+              );
+            }
+            throw new Error(errorMessage);
+          }
+
+          const result = await response.json();
+          alert(result.message);
+          fetchUsers();
+        } catch (error) {
+          console.error("Error deleting user:", error);
+          alert("Failed to delete user: " + error.message);
+        }
+      }
+
+      // --- Order Management Functions ---
+
+      async function fetchOrders() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/orders`);
+          if (!response.ok) {
+            let errorMessage = `HTTP error! Status: ${response.status} ${response.statusText}`;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              console.warn(
+                "Failed to parse error response as JSON for orders:",
+                e
+              );
+            }
+            throw new Error(errorMessage);
+          }
+          const data = await response.json();
+          allOrders = data;
+          renderOrders(allOrders);
+        } catch (err) {
+          document.getElementById(
+            "orderTableBody"
+          ).innerHTML = `<tr><td colspan="10" style="color:red; text-align:center;">Failed to load orders: ${err.message}</td></tr>`;
+          document.getElementById("noOrdersMessage").style.display = "none";
+          console.error("Fetch orders error:", err);
+        }
+      }
+
+      function renderOrders(ordersToDisplay) {
+        const orderTableBody = document.getElementById("orderTableBody");
+        orderTableBody.innerHTML = "";
+
+        if (ordersToDisplay.length === 0) {
+          document.getElementById("noOrdersMessage").style.display = "block";
+        } else {
+          document.getElementById("noOrdersMessage").style.display = "none";
+          ordersToDisplay.forEach((order, index) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${index + 1}</td>
+              <td>${order.id}</td>
+              <td>${order.username || "N/A"}</td> <!-- Display username -->
+              <td>${new Date(order.order_date).toLocaleString()}</td>
+              <td>$${(parseFloat(order.total_amount) || 0).toFixed(2)}</td>
+              <td>${order.status}</td>
+              <td>${order.payment_method}</td>
+              <td>${order.shipping_address}</td>
+              <td>${order.phone_number}</td>
+              <td class="action-buttons">
+                <button class="btn view-details-btn" onclick="viewOrderDetails(${
+                  order.id
+                })">Details</button>
+                <button class="btn delete-btn" onclick="deleteOrder(${
+                  order.id
+                })">Delete</button>
+              </td>
+            `;
+            orderTableBody.appendChild(row);
+          });
+        }
+      }
+
+      function filterOrders() {
+        const searchTerm = document
+          .getElementById("orderSearchInput")
+          .value.toLowerCase()
+          .trim();
+        let filtered = allOrders;
+
+        if (searchTerm) {
+          filtered = allOrders.filter(
+            (order) =>
+              (order.id && order.id.toString().includes(searchTerm)) ||
+              (order.username &&
+                order.username.toLowerCase().includes(searchTerm)) || // Filter by username
+              (order.status && order.status.toLowerCase().includes(searchTerm))
+          );
+        }
+        renderOrders(filtered);
+      }
+
+      async function viewOrderDetails(orderId) {
+        const orderDetailsModal = document.getElementById("orderDetailsModal");
+        const modalOrderId = document.getElementById("modalOrderId");
+        const modalOrderUsername =
+          document.getElementById("modalOrderUsername"); // Updated ID
+        const modalOrderDate = document.getElementById("modalOrderDate");
+        const modalOrderTotalAmount = document.getElementById(
+          "modalOrderTotalAmount"
+        );
+        const modalOrderStatus = document.getElementById("modalOrderStatus");
+        const modalOrderPaymentMethod = document.getElementById(
+          "modalOrderPaymentMethod"
+        );
+        const modalOrderShippingAddress = document.getElementById(
+          "modalOrderShippingAddress"
+        );
+        const modalOrderPhoneNumber = document.getElementById(
+          "modalOrderPhoneNumber"
+        );
+        const orderProductsTableBody = document.getElementById(
+          "orderProductsTableBody"
+        );
+        const noOrderProductsMessage = document.getElementById(
+          "noOrderProductsMessage"
+        );
+
+        orderProductsTableBody.innerHTML = "";
+        noOrderProductsMessage.style.display = "none";
+
+        try {
+          const orderResponse = await fetch(
+            `${API_BASE_URL}/orders/${orderId}`
+          );
+          if (!orderResponse.ok) {
+            let errorMessage = `HTTP error! Status: ${orderResponse.status} ${orderResponse.statusText}`;
+            try {
+              const errorData = await orderResponse.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              console.warn(
+                "Failed to parse error response as JSON for order details:",
+                e
+              );
+            }
+            throw new Error(errorMessage);
+          }
+          const order = await orderResponse.json();
+
+          modalOrderId.textContent = order.id;
+          modalOrderUsername.textContent = order.username || "N/A"; // Display username
+          modalOrderDate.textContent = new Date(
+            order.order_date
+          ).toLocaleString();
+          modalOrderTotalAmount.textContent = `$${parseFloat(
+            order.total_amount
+          ).toFixed(2)}`;
+          modalOrderStatus.textContent = order.status;
+          modalOrderPaymentMethod.textContent = order.payment_method;
+          modalOrderShippingAddress.textContent = order.shipping_address;
+          modalOrderPhoneNumber.textContent = order.phone_number;
+
+          const itemsResponse = await fetch(
+            `${API_BASE_URL}/orders/${orderId}/items`
+          );
+          if (!itemsResponse.ok) {
+            let errorMessage = `HTTP error! Status: ${itemsResponse.status} ${itemsResponse.statusText}`;
+            try {
+              const errorData = await itemsResponse.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              console.warn(
+                "Failed to parse error response as JSON for order items:",
+                e
+              );
+            }
+            throw new Error(errorMessage);
+          }
+          const items = await itemsResponse.json();
+
+          if (items.length === 0) {
+            noOrderProductsMessage.style.display = "block";
+          } else {
+            items.forEach((item) => {
+              const row = document.createElement("tr");
+              const itemPrice = parseFloat(item.price) || 0; // price_at_purchase is aliased to price
+              const itemQuantity = parseInt(item.quantity) || 0;
+              const lineTotal = itemPrice * itemQuantity;
+
+              // Determine color display: either a color box or "N/A"
+              const colorDisplay = item.color
+                ? `<div style="background-color: ${item.color}; width: 20px; height: 20px; border-radius: 50%; border: 1px solid #ccc; display: inline-block; vertical-align: middle;"></div>`
+                : "N/A";
+
+              row.innerHTML = `
+                <td><img src="${
+                  item.product_image ||
+                  "https://placehold.co/60x60/e2e8f0/64748b?text=No+Image"
+                }"
+                           alt="${
+                             item.product_name
+                           }" class="w-16 h-16 object-cover rounded-md shadow-sm"
+                           onerror="this.onerror=null;this.src='https://placehold.co/60x60/e2e8f0/64748b?text=No+Image';"></td>
+                <td>${item.product_name}</td>
+                <td>${item.quantity}</td>
+                <td>$${itemPrice.toFixed(2)}</td>
+                <td>${item.size || "N/A"}</td>
+                <td>${colorDisplay}</td> <!-- Changed to display color box -->
+                <td>$${lineTotal.toFixed(2)}</td>
+              `;
+              orderProductsTableBody.appendChild(row);
+            });
+          }
+
+          orderDetailsModal.classList.add("active");
+        } catch (error) {
+          console.error("Error fetching order details:", error);
+          alert("Failed to load order details: " + error.message);
+          closeOrderDetailsModal();
+        }
+      }
+
+      function closeOrderDetailsModal() {
+        document.getElementById("orderDetailsModal").classList.remove("active");
+      }
+
+      async function deleteOrder(id) {
+        const confirmed = await confirm(
+          `Are you sure you want to delete order ID: ${id}?`
+        );
+        if (!confirmed) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
+            method: "DELETE",
+          });
+
+          if (!response.ok) {
+            let errorMessage = `HTTP error! Status: ${response.status} ${response.statusText}`;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              console.warn(
+                "Failed to parse error response as JSON for delete order:",
+                e
+              );
+            }
+            throw new Error(errorMessage);
+          }
+
+          const result = await response.json();
+          alert(result.message);
+          fetchOrders();
+        } catch (error) {
+          console.error("Error deleting order:", error);
+          alert("Failed to delete order: " + error.message);
+        }
+      }
+
+      // --- Initial Load ---
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchCategories().then(() => {
+          fetchProducts().then(() => {
+            showTab("list-product");
+          });
+        });
+      });
+      
+    </script>
+  <script src="js/admin.js"></script>
+  </body>
+</html>

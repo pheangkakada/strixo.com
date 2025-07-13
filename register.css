@@ -1,0 +1,397 @@
+/* CSS starts here */
+/* Changed font import to Inter */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure html and body take full height for fixed positioning */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  font-family: "Inter", sans-serif; /* Apply Inter as the default font */
+}
+
+/* General body overflow control when modal is open */
+body.modal-open {
+  overflow: hidden; /* Prevent scrolling on the main page */
+}
+
+/* REGISTER MODAL (containerRegister) - This is the full-screen overlay AND the content container */
+#containerRegister {
+  /* Use ID for highest specificity for overlay properties */
+  display: none; /* Hidden by default, will be controlled by JS */
+  position: fixed; /* Fixed to the viewport */
+  top: 0;
+  left: 0;
+  width: 100%; /* Full viewport width for the overlay */
+  height: 100%; /* Full viewport height for the overlay */
+  background-color: rgba(0, 0, 0, 0.6); /* Dim background */
+  z-index: 10000; /* Ensure it's on top of everything */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  backdrop-filter: blur(5px); /* Optional: blur background */
+  transition: opacity 0.3s ease; /* Smooth transition */
+  opacity: 0; /* Start hidden for transition */
+}
+
+#containerRegister.active {
+  display: flex; /* Show with flex when active */
+  opacity: 1; /* Fade in */
+}
+
+/* NEW: Styles for the inner content wrapper of the modal */
+.modal-content-wrapper {
+  max-width: 800px; /* Increased max-width for a slightly larger modal */
+  width: 90%; /* Keep responsive width */
+  height: 520px; /* Increased FIXED HEIGHT from 480px to 520px */
+  max-height: 95vh; /* Ensure it doesn't exceed viewport height on smaller screens */
+  background-color: #fff; /* White background for the modal content */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  position: relative; /* CRUCIAL: For absolute positioning of children (forms/overlay) */
+  overflow: hidden; /* Crucial for containing the sliding forms, no internal scroll here */
+  display: flex; /* Make it a flex container for its children (forms/overlay) */
+}
+
+/* Close buttons within the modal */
+/* Adjusted selector to be relative to .modal-content-wrapper */
+.modal-content-wrapper .form-containerRegister h1[onclick="closeAuthModal()"] {
+  cursor: pointer;
+  font-size: 1.5rem; /* Make it more prominent */
+  color: #555; /* A bit darker for visibility */
+  position: absolute; /* Position relative to its form container */
+  top: 10px;
+  right: 15px;
+  z-index: 10001; /* Ensure it's above other modal content */
+}
+.modal-content-wrapper
+  .form-containerRegister.sign-in-containerRegister
+  h1[onclick="closeAuthModal()"] {
+  left: 15px; /* Adjust for sign-in side */
+  right: auto;
+}
+.modal-content-wrapper
+  .form-containerRegister
+  h1[onclick="closeAuthModal()"]:hover {
+  color: #333;
+}
+
+/* Form Containers */
+.form-containerRegister {
+  position: absolute;
+  top: 0;
+  height: 100%; /* Take full height of .modal-content-wrapper */
+  transition: all 0.6s ease-in-out;
+  background-color: #fff; /* Ensure forms have a background */
+  display: flex; /* Use flex for internal form layout */
+  flex-direction: column;
+  align-items: center;
+  padding: 15px 25px; /* Keep horizontal padding as is */
+  box-sizing: border-box; /* Include padding in width */
+  overflow-y: hidden; /* Hide scrollbar on forms themselves */
+  justify-content: flex-start; /* Align items to the top */
+}
+
+.sign-in-containerRegister {
+  left: 0;
+  width: 50%; /* Reverted to 50% */
+  z-index: 2; /* Sign-in is initially on top */
+}
+
+.sign-up-containerRegister {
+  left: 0;
+  width: 50%; /* Reverted to 50% */
+  opacity: 0; /* Hidden by default */
+  z-index: 1; /* Sign-up is initially behind */
+}
+
+/* Overlay Container */
+.overlay-containerRegister {
+  position: absolute;
+  top: 0;
+  left: 50%; /* Reverted to 50% */
+  width: 50%; /* Reverted to 50% */
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
+}
+
+.overlay {
+  background: #ff416c; /* Example background */
+  background: -webkit-linear-gradient(to right, #4d5cff, #226de6);
+  background: linear-gradient(to right, #2864e7, #3555e3);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 0;
+  color: #ffffff;
+  position: relative; /* CRUCIAL: For absolute positioning of overlay-panels */
+  left: -100%; /* Reverted to -100% */
+  height: 100%;
+  width: 200%; /* Reverted to 200% */
+  transform: translateX(0); /* Reverted to 0 */
+  transition: transform 0.6s ease-in-out;
+}
+
+.overlay-panel {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 30px; /* Keep padding for overlay panels */
+  text-align: center;
+  top: 0;
+  height: 100%;
+  width: 50%; /* Reverted to 50% */
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.overlay-left {
+  left: 0; /* Keep at 0 */
+  transform: translateX(-20%); /* Reverted to -20% */
+}
+
+.overlay-right {
+  right: 0;
+  transform: translateX(0); /* Reverted to 0 */
+}
+
+/* Active state styles - These control the sliding animation */
+.containerRegister.right-panel-active .sign-in-containerRegister {
+  transform: translateX(100%); /* Reverted to 100% */
+}
+
+.containerRegister.right-panel-active .sign-up-containerRegister {
+  transform: translateX(100%); /* Reverted to 100% */
+  opacity: 1; /* Make sign-up visible */
+  z-index: 5; /* Bring sign-up to front */
+  animation: show 0.6s;
+}
+
+.containerRegister.right-panel-active .overlay-containerRegister {
+  transform: translateX(-100%); /* Reverted to -100% */
+}
+
+.containerRegister.right-panel-active .overlay {
+  transform: translateX(50%); /* Reverted to 50% */
+}
+
+.containerRegister.right-panel-active .overlay-left {
+  transform: translateX(0); /* Keep at 0 */
+}
+
+.containerRegister.right-panel-active .overlay-right {
+  transform: translateX(20%); /* Keep at 20% */
+}
+
+/* Keyframe for show animation */
+@keyframes show {
+  0%,
+  49.99% {
+    opacity: 0;
+    z-index: 1;
+  }
+  50%,
+  100% {
+    opacity: 1;
+    z-index: 5;
+  }
+}
+
+/* Styles for form elements (adjusted font sizes and input width) */
+.containerRegister h1 {
+  font-weight: 600; /* Slightly bolder for headings */
+  margin-top: 0; /* Ensure no top margin pushing content down */
+  margin-bottom: 8px; /* Reduced space below heading */
+  font-size: 2.2em; /* Keep font size */
+}
+
+.containerRegister h2 {
+  text-align: center;
+  font-size: 1.8em; /* Keep font size */
+}
+
+.containerRegister p {
+  font-size: 1.05em; /* Keep font size */
+  font-weight: 400; /* Standard weight */
+  line-height: 1.4em; /* Adjusted line height for readability */
+  letter-spacing: 0.5px;
+  margin: 5px 0; /* Keep vertical margin */
+}
+
+.containerRegister span {
+  font-size: 0.85em; /* Keep font size */
+  font-weight: 400;
+  margin-top: 5px; /* Keep margin-top */
+  margin-bottom: 8px; /* Keep margin-bottom */
+}
+
+.containerRegister a {
+  color: #333;
+  font-size: 0.85em; /* Keep font size */
+  text-decoration: none;
+  margin-top: 5px; /* Keep margin-top */
+  margin-bottom: 10px; /* Keep margin-bottom */
+  font-weight: 500; /* Slightly bolder for links */
+}
+
+.containerRegister button {
+  border-radius: 20px;
+  border: 1px solid #2654fc; /* Kept your original color */
+  background-color: #1c68eb; /* Kept your original color */
+  color: #ffffff;
+  font-size: 0.95em; /* Keep font size */
+  font-weight: 600; /* Bolder for buttons */
+  padding: 8px 30px; /* Keep padding */
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: transform 80ms ease-in;
+  cursor: pointer; /* Added cursor pointer */
+  margin-top: 12px; /* Keep margin */
+  width: 90%; /* Increased button width to 90% */
+  max-width: 350px; /* Increased button max-width to match inputs */
+}
+
+.containerRegister button:active {
+  transform: scale(0.95);
+}
+
+.containerRegister button:focus {
+  outline: none;
+}
+
+.containerRegister button.ghost {
+  background-color: transparent;
+  border-color: #ffffff;
+}
+
+.containerRegister form {
+  width: 100%;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%; /* Take 100% height of parent */
+  text-align: center;
+  padding: 15px 25px; /* Keep horizontal padding for the form container */
+  box-sizing: border-box; /* Include padding in width */
+  overflow-y: hidden; /* Hide scrollbar on the form itself */
+  justify-content: center; /* Align items to the top */
+}
+
+.containerRegister input {
+  background-color: #eee;
+  border: none;
+  padding: 8px 15px; /* Keep input padding */
+  margin: 5px 0; /* Keep vertical margin for inputs */
+  width: 100%; /* Maintained 100% width */
+  max-width: 380px; /* Increased max-width for inputs */
+  font-size: 0.9em; /* Keep font size */
+  border-radius: 5px; /* Added border-radius for softer edges */
+}
+
+.containerRegister .social-containerRegister {
+  margin-bottom: 8px; /* Keep margin-bottom */
+}
+
+.containerRegister .social-containerRegister a {
+  border: 1px solid #dddddd;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 5px;
+  height: 35px; /* Keep social icons size */
+  width: 35px; /* Keep social icons size */
+  text-decoration: none; /* Added text-decoration: none */
+  color: #333; /* Added color for social icons */
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+  /* width: 90%; */
+  /* max-width: 300px; */
+  text-align: left;
+  /* justify-content: center; */
+}
+
+.checkbox-group input[type="checkbox"] {
+  /* margin: 5px 0 0 0; */
+  padding: 0;
+  transform: scale(0.9);
+  width: auto;
+  /* min-width: unset; */
+  /* max-width: unset; */
+}
+
+.checkbox-group label {
+  margin: 0;
+  padding: 0;
+  white-space: normal;
+  font-size: 0.75em; /* Keep font size */
+  line-height: 1.2; /* Improve line height for wrapped text */
+  flex-grow: 1; /* Allow label to grow and take remaining space */
+}
+
+/* Media queries for responsiveness on smaller screens */
+@media (max-width: 768px) {
+  .modal-content-wrapper {
+    flex-direction: column; /* Stack forms vertically */
+    height: auto; /* Allow height to adjust */
+    min-height: unset; /* Remove min-height for mobile */
+    max-height: 95vh; /* Max height for mobile */
+    overflow-y: auto; /* Enable scrolling for content on mobile */
+  }
+
+  .form-containerRegister {
+    padding: 15px 25px; /* Adjust padding for mobile forms */
+  }
+
+  .form-containerRegister,
+  .overlay-containerRegister {
+    position: relative; /* Change to relative for stacking */
+    width: 100%; /* Take full width when stacked */
+    left: 0; /* Reset left position */
+    transform: none !important; /* Disable transforms for stacking */
+    opacity: 1 !important; /* Ensure visibility */
+    z-index: auto !important; /* Reset z-index */
+  }
+
+  .overlay-containerRegister {
+    order: -1; /* Place overlay at the top when stacked */
+    height: 200px; /* Give overlay a fixed height on mobile */
+  }
+
+  .overlay {
+    width: 100%; /* Adjust overlay width */
+    left: 0; /* Reset left */
+    transform: none !important; /* Disable transforms */
+    background-position: center center; /* Center background image */
+  }
+
+  .overlay-panel {
+    width: 100%; /* Panels take full width */
+    transform: none !important; /* Disable transforms */
+  }
+
+  .containerRegister.right-panel-active .sign-in-containerRegister,
+  .containerRegister.right-panel-active .sign-up-containerRegister,
+  .containerRegister.right-panel-active .overlay-containerRegister,
+  .containerRegister.right-panel-active .overlay,
+  .containerRegister.right-panel-active .overlay-left,
+  .containerRegister.right-panel-active .overlay-right {
+    transform: none !important; /* Disable all transforms for mobile stacking */
+    animation: none !important; /* Disable animations for mobile stacking */
+  }
+}

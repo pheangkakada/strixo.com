@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="style1.css" />
+    <link rel="stylesheet" href="cart.css" />
+    <link rel="stylesheet" href="mobliecss.css" />
+    <link rel="stylesheet" href="register.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* Ensure html and body take full height for fixed positioning */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+      }
+
+      /* General body overflow control when modal is open */
+      body.modal-open {
+        overflow: hidden; /* Prevent scrolling on the main page */
+      }
+
+      /* This style block is ONLY for the full-screen, centered overlay behavior */
+      /* It has higher specificity to guarantee it works */
+      #containerRegister {
+        display: none; /* Hidden by default, controlled by JS */
+        position: fixed; /* Fixed to the viewport */
+        top: 0;
+        left: 0;
+        width: 100%; /* Full viewport width */
+        height: 100%; /* Full viewport height */
+        background-color: rgba(0, 0, 0, 0.6); /* Dim background */
+        z-index: 10000; /* Ensure it's on top of everything */
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+        backdrop-filter: blur(5px); /* Optional: blur background */
+        transition: opacity 0.3s ease; /* Smooth fade in/out */
+        opacity: 0; /* Start hidden for transition */
+        /* Important: Do NOT set width/height/background-color/box-shadow here for the INNER modal content.
+             Those styles will come from register.css for the .modal-content-wrapper class. */
+      }
+
+      #containerRegister.active {
+        display: flex; /* Show with flex when active */
+        opacity: 1; /* Fade in */
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="Desktop">
+      <div class="container_head">
+        <div class="box_Logo"><img src="img/Logo.png" alt="" /></div>
+        <div class="box_nav">
+          <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Shop</a></li>
+            <li><a href="#">Service</a></li>
+            <li><a href="#">AboutUs</a></li>
+            <div class="InputContainer">
+              <input
+                placeholder="Search"
+                class="input"
+                id="desktopSearchInput"
+                name="text"
+                type="text"
+              />
+              <label class="labelforsearch" for="desktopSearchInput">
+                <svg class="searchIcon" viewBox="0 0 512 512">
+                  <path
+                    d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"
+                  ></path>
+                </svg>
+              </label>
+            </div>
+          </ul>
+        </div>
+
+        <div class="box_Cart">
+          <button
+            id="btn_cart"
+            style="border-right: 4px solid; padding-right: 10px"
+          >
+            Cart (<span style="color: red">0</span>)
+          </button>
+          <div
+            id="userInfoDisplay"
+            style="
+              display: none;
+              padding: 0 5px;
+              font-weight: bold;
+              color: #333;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <div
+              style="display: flex; flex-direction: column; padding: 0px 0px"
+            >
+              <span style="color: rgb(81, 80, 80); width: 120px">Hello !</span>
+              <span
+                style="font-size: 18px; color: #0a47ff"
+                id="usernameDisplay"
+              ></span>
+            </div>
+            <button
+              id="logoutBtn"
+              class="logout-button"
+              style="border-radius: 50%; padding: 10px"
+            >
+              <i class="fa-solid fa-right-from-bracket" style="color: red"></i>
+            </button>
+          </div>
+          <button id="btn_Register">Register</button>
+        </div>
+      </div>
+
+      <!-- CART-->
+      <div id="cartModal" class="modals">
+        <div class="modal-contents">
+          <span class="close" onclick="closeCartModal()">&times;</span>
+          <h2>Your Cart</h2>
+
+          <div class="cart-table-wrapper">
+            <table id="cartTable" class="cart-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Size</th>
+                  <th>Color</th>
+                  <th>Price</th>
+                  <th>Qty</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody id="cartTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="cart-footer">
+            <button
+              class="order-btn"
+              style="background-color: #007bff; float: right"
+              id="order-btn"
+              onclick="submitOrder()"
+            >
+              Order Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+    <header class="Mobile">
+      <div class="mobile_container_head">
+        <div class="mBoxLogo"><img src="img/Logo.png" alt="" /></div>
+        <div class="boxSideBar">
+          <div class="container">
+            <div class="mainbox">
+              <div class="iconContainer">
+                <i class="fa-solid fa-magnifying-glass" id="searchBtn"></i>
+              </div>
+
+              <input
+                class="search_input"
+                placeholder="search"
+                type="text"
+                id="mobileSearchInput"
+                name="text"
+              />
+            </div>
+          </div>
+          <div class="sideBar">
+            <i class="fa-solid fa-bars"></i>
+          </div>
+          <div class="mobileMenu" id="mobileMenu">
+            <ul>
+              <li><a href="#">Home</a></li>
+              <li><a href="#">Shop</a></li>
+              <li><a href="#">Service</a></li>
+              <li><a href="#">Service</a></li>
+              <li><a href="#">Service</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main>
+      <div class="container_main">
+        <div class="wrapper_main">
+          <div class="bg_main"><img src="img/Group 35.png" alt="" /></div>
+        </div>
+      </div>
+      <div class="container_welcome">
+        <h1><a href="#" class="btn-shine">Welcome To STRIXO Collection</a></h1>
+        <div class="box_ads">
+          <div class="ads">
+            <video autoplay loop>
+              <source src="img/Simple-Dot-[remix].mp4" />
+            </video>
+          </div>
+        </div>
+        <div class="box_category_show">
+          <div class="box_shoes">
+            <div class="title">
+              <h1>Shoes</h1>
+              <p>We have a lot of brand new shoes.</p>
+            </div>
+            <div class="pic"><img src="img/cShoes.png" alt="" /></div>
+          </div>
+          <div class="box_hel">
+            <div class="title">
+              <h1>Helmet</h1>
+              <p>Our pants is High Quality and imported from USA.</p>
+            </div>
+            <div class="pic"><img src="img/Pants.png" alt="" /></div>
+          </div>
+          <div class="box_hoodie">
+            <div class="title">
+              <h1>Hoodies</h1>
+              <p>Our Hoodies are High Quality and imported from USA.</p>
+            </div>
+            <div class="pic"><img src="img/cHoodie.png" alt="" /></div>
+          </div>
+        </div>
+      </div>
+      <div class="container_TopSell">
+        <h1>Best Sales</h1>
+        <div class="box_prod" id="topSell"></div>
+      </div>
+      <div class="container_category">
+        <h1 style="border-left: 5px solid black; padding-left: 10px">
+          Features Categories
+        </h1>
+        <div class="box_cate"></div>
+      </div>
+      <div class="container_allProduct" id="container_allProduct">
+        <h1 style="border-left: 5px solid black; padding-left: 10px">
+          All Products
+        </h1>
+        <div class="box_prodAll" id="prodAll"></div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+
+      <div
+        id="productModal"
+        class="product-modal"
+        style="
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 9999;
+          overflow: auto;
+        "
+      >
+        <div
+          class="modal-content"
+          style="
+            background: white;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            gap: 20px;
+            position: relative;
+          "
+        >
+          <span
+            class="close-btn"
+            onclick="closeProductModal()"
+            style="
+              position: absolute;
+              right: 15px;
+              top: 15px;
+              cursor: pointer;
+              font-size: 24px;
+            "
+            >×</span
+          >
+
+          <div class="modal-left" style="flex: 1">
+            <img
+              id="modal-img"
+              src=""
+              alt="Product Image"
+              style="width: 100%; border-radius: 6px"
+            />
+          </div>
+
+          <div class="modal-right" style="flex: 1">
+            <p id="modal-category" style="font-weight: bold; color: #555"></p>
+            <h2 id="modal-name" style="margin-top: 0"></h2>
+            <p id="modal-description" style="color: #666"></p>
+            <p
+              id="modal-price"
+              style="font-weight: bold; font-size: 18px; margin-top: 10px"
+            ></p>
+
+            <div>
+              <h4>Choose Sizes</h4>
+              <h5
+                id="errorSize"
+                style="display: none; color: red; font-size: 10p"
+              >
+                Please Choose Size...!
+              </h5>
+              <div
+                id="modal-sizes"
+                class="choices size-choices"
+                style="margin-bottom: 15px"
+              ></div>
+            </div>
+
+            <div>
+              <h4>Colors</h4>
+              <h5
+                id="errorColor"
+                style="display: none; color: red; font-size: 10p"
+              >
+                Please Choose Color...!
+              </h5>
+              <div id="modal-colors" class="choices color-choices"></div>
+            </div>
+
+            <button
+              class="buttonCart"
+              onclick="addToCart()"
+              style="
+                background: #0a47ff;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                cursor: pointer;
+                border-radius: 8px;
+              "
+            >
+              ADD TO CART
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button
+        id="floatingCartButton"
+        class="floating-cart-button"
+        style="display: none"
+        onclick="document.getElementById('cartModal').style.display='block';"
+      >
+        Total: <span id="floatingCartCount">0</span> Items
+      </button>
+    </main>
+    <footer class="modern-footer">
+      <div class="footer-content">
+        <div class="footer-main-sections">
+          <div class="footer-section footer-info">
+            <a href="#" class="footer-logo">STRIXO<span>.</span> </a>
+            <p>
+              STRIXO offers innovative modern clothing for self-expression. Our
+              curated collections blend trends with timeless appeal. Discover
+              high-quality, stylish apparel to redefine your wardrobe.
+            </p>
+            <ul class="contact-info">
+              <li>
+                <i class="fas fa-map-marker-alt"></i>
+                <span
+                  >Street 51 (Pasteur Street)<br />#17, Street Pasteur,
+                  Chaktomuk.</span
+                >
+              </li>
+              <li>
+                <i style="margin-left: 10px" class="fas fa-phone"></i>
+                <span>077 555 1234</span>
+              </li>
+              <li>
+                <i style="margin-left: 10px" class="fas fa-envelope"></i>
+                <span>contact@strixo.com</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="footer-section footer-links">
+            <h3 class="footer-title">Quick Links</h3>
+            <ul class="quick-links" style="margin-top: 12px">
+              <li>
+                <a href="#">Our Services</a>
+              </li>
+              <li><a href="#">About Company</a></li>
+              <li><a href="#">Latest Projects</a></li>
+              <li><a href="#">Recent News</a></li>
+              <li><a href="#">Customer Support</a></li>
+              <li><a href="#">Contact Details</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-section footer-newsletter">
+            <h3 class="footer-title">Stay Connected</h3>
+            <p>
+              Subscribe to our newsletter and stay updated with the latest news
+              and insights.
+            </p>
+            <form>
+              <div>
+                <input
+                  type="email"
+                  class="newsletter-input"
+                  placeholder="Your email address"
+                />
+              </div>
+              <button type="submit" class="btn-subscribe">Subscribe Now</button>
+            </form>
+            <div class="social-links">
+              <a href="#" class="social-icon"
+                ><i class="fab fa-facebook-f"></i
+              ></a>
+              <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+              <a href="#" class="social-icon"
+                ><i class="fab fa-instagram"></i
+              ></a>
+              <a href="#" class="social-icon"
+                ><i class="fab fa-linkedin-in"></i
+              ></a>
+              <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-bottom-content">
+          <div class="footer-copyright">
+            <p>&copy; 2025 STRIXO. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!--REGISTER MODAL - Moved to be a direct child of <body> -->
+    <div class="containerRegister" id="containerRegister">
+      <!-- NEW: Inner wrapper for modal content -->
+      <div class="modal-content-wrapper">
+        <div class="form-containerRegister sign-up-containerRegister">
+          <h1
+            style="
+              font-size: 18px;
+              float: right;
+              padding: 5px 10px 0 0;
+              cursor: pointer;
+            "
+            onclick="closeAuthModal()"
+          >
+            x
+          </h1>
+          <form id="registerForm" action="#">
+            <h1>Create Account</h1>
+            <div class="social-containerRegister">
+              <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+              <a href="#" class="social"
+                ><i class="fab fa-google-plus-g"></i
+              ></a>
+              <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <span>or use your email for registration</span>
+            <input
+              type="text"
+              placeholder="Name"
+              id="regName"
+              name="name"
+              required
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              id="regEmail"
+              name="email"
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              id="regPassword"
+              name="password"
+              required
+            />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              id="regConfirmPassword"
+              name="confirmPassword"
+              required
+            />
+            <div class="form-group checkbox-group" style="margin: 10px 0">
+              <input type="checkbox" id="termsService" required />
+              <label for="termsService" style="font-size: 12px"
+                >I agree all statements in
+                <a
+                  href="#"
+                  class="terms-link"
+                  style="color: #007bff; text-decoration: underline"
+                  >Terms of service</a
+                ></label
+              >
+            </div>
+
+            <button type="submit">Sign Up</button>
+          </form>
+        </div>
+        <div class="form-containerRegister sign-in-containerRegister">
+          <h1
+            style="
+              font-size: 18px;
+              float: left;
+              padding: 5px 0 0 10px;
+              cursor: pointer;
+            "
+            onclick="closeAuthModal()"
+          >
+            x
+          </h1>
+          <form id="loginForm" action="#">
+            <h1>Sign in</h1>
+            <div class="social-containerRegister">
+              <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+              <a href="#" class="social"
+                ><i class="fab fa-google-plus-g"></i
+              ></a>
+              <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <span>or use your account</span>
+            <input
+              type="email"
+              placeholder="Email"
+              id="loginEmail"
+              name="email"
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              id="loginPassword"
+              name="password"
+              required
+            />
+            <a href="#">Forgot your password?</a>
+            <button type="submit">Sign In</button>
+          </form>
+        </div>
+        <div class="overlay-containerRegister">
+          <div class="overlay">
+            <div class="overlay-panel overlay-left">
+              <h1>Welcome Back!</h1>
+              <p>
+                To keep connected with us please login with your personal info
+              </p>
+              <button class="ghost" id="signIn">Sign In</button>
+            </div>
+            <div class="overlay-panel overlay-right">
+              <h1>Hello, Friend!</h1>
+              <p>Enter your personal details and start journey with us</p>
+              <button class="ghost" id="signUp">Sign Up</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/js.js"></script>
+    <script src="js/mobile.js"></script>
+  </body>
+</html>
+<!--OKKKKKKKKKKKKKKKKKKKK-->
